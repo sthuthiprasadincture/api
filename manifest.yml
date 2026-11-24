@@ -1,0 +1,7 @@
+applications: 
+ - name: api
+   memory: 256M
+   buildpacks: 
+   - nodejs_buildpack
+   command: npm start
+   
