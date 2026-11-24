@@ -33,7 +33,24 @@ jobs:
           curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=v8&source=github" | tar -zx
           sudo mv cf8 /usr/local/bin/cf
 
-      # Step 5: Login and deploy to SAP BTP
+      # Step 5: Debug GitHub variables and secrets
+      - name: Debug GitHub Configuration
+        env:
+          CF_API: ${{ vars.CF_API }}
+          CF_USERNAME: ${{ secrets.CF_USERNAME }}
+          CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
+          CF_ORG: ${{ vars.CF_ORG }}
+          CF_SPACE: ${{ vars.CF_SPACE }}
+        run: |
+          echo "Checking GitHub configuration..."
+
+          [ -n "$CF_API" ] && echo "CF_API: PRESENT" || echo "CF_API: MISSING"
+          [ -n "$CF_USERNAME" ] && echo "CF_USERNAME: PRESENT" || echo "CF_USERNAME: MISSING"
+          [ -n "$CF_PASSWORD" ] && echo "CF_PASSWORD: PRESENT" || echo "CF_PASSWORD: MISSING"
+          [ -n "$CF_ORG" ] && echo "CF_ORG: PRESENT" || echo "CF_ORG: MISSING"
+          [ -n "$CF_SPACE" ] && echo "CF_SPACE: PRESENT" || echo "CF_SPACE: MISSING"
+
+      # Step 6: Login and deploy to SAP BTP
       - name: Deploy to SAP BTP Cloud Foundry
         env:
           CF_API: ${{ vars.CF_API }}
@@ -41,7 +58,6 @@ jobs:
           CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
           CF_ORG: ${{ vars.CF_ORG }}
           CF_SPACE: ${{ vars.CF_SPACE }}
-
         run: |
           cf login \
             -a "$CF_API" \
@@ -52,8 +68,9 @@ jobs:
 
           cf push
 
-      # Step 6: Logout
+      # Step 7: Logout from Cloud Foundry
       - name: Logout from Cloud Foundry
         if: always()
         run: cf logout
+
 
